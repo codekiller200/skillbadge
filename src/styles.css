@@ -1,0 +1,13 @@
+html {
+  background: #0a0d14;
+}
+
+body {
+  min-width: 320px;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
