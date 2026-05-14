@@ -726,7 +726,8 @@ export default function App() {
               }}>SkillBadge</h1>
             </div>
             <div style={{ fontSize: 12, color: C.muted, letterSpacing: 1 }}>
-              🇧🇫 BURKINA FASO · MIABE HACKATHON 2026
+              🇧🇫 BURKINA FASO · Hackathon 2026
+
             </div>
             <div style={{
               display: "inline-flex", alignItems: "center", gap: 6, marginTop: 10,
