@@ -1,6 +1,6 @@
 # SkillBadge
 
-Prototype SkillBadge pour le MIABE Hackathon 2026.
+Prototype SkillBadge pour le hackathon 2026.
 
 Le projet présente trois espaces :
 
