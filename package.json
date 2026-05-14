@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Prototype SkillBadge - Hackathon 2026",
+  "description": "Prototype SkillBadge - 2026",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
@@ -17,3 +17,4 @@
   },
   "devDependencies": {}
 }
+
