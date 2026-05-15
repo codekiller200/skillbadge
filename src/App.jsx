@@ -2,46 +2,66 @@ import React, { useState, useEffect } from "react";
 
 // ─── PALETTE & TOKENS ──────────────────────────────────────────────
 const C = {
-  night:   "#0A0D14",
-  deep:    "#111520",
-  card:    "#161C2D",
-  border:  "#1E2A45",
-  gold:    "#F5C842",
-  amber:   "#E8A020",
-  red:     "#E53E3E",
-  green:   "#22C55E",
-  cyan:    "#38BDF8",
-  muted:   "#5A6A8A",
-  text:    "#C8D4E8",
-  white:   "#EEF2FF",
+  night: "#0A0D14",
+  deep: "#111520",
+  card: "#161C2D",
+  border: "#1E2A45",
+  gold: "#F5C842",
+  amber: "#E8A020",
+  red: "#E53E3E",
+  green: "#22C55E",
+  cyan: "#38BDF8",
+  muted: "#5A6A8A",
+  text: "#C8D4E8",
+  white: "#EEF2FF",
 };
 
 const DOMAINS = [
-  { id: "web",    icon: "⬡", label: "Dev Web",       color: "#38BDF8" },
-  { id: "mobile", icon: "◈", label: "Mobile",         color: "#A78BFA" },
-  { id: "data",   icon: "◉", label: "Data & IA",      color: "#34D399" },
-  { id: "cyber",  icon: "⬟", label: "Cybersécurité",  color: "#F87171" },
-  { id: "design", icon: "◆", label: "Design UI/UX",   color: "#FBBF24" },
+  { id: "web", icon: "⬡", label: "Dev Web", color: "#38BDF8" },
+  { id: "mobile", icon: "◈", label: "Mobile", color: "#A78BFA" },
+  { id: "data", icon: "◉", label: "Data & IA", color: "#34D399" },
+  { id: "cyber", icon: "⬟", label: "Cybersécurité", color: "#F87171" },
+  { id: "design", icon: "◆", label: "Design UI/UX", color: "#FBBF24" },
 ];
 
 const LEVELS = [
-  { id: "debut",  label: "Débutant",      stars: 1, color: "#22C55E" },
-  { id: "inter",  label: "Intermédiaire", stars: 2, color: "#F5C842" },
-  { id: "expert", label: "Expert",        stars: 3, color: "#F87171" },
+  { id: "debut", label: "Débutant", stars: 1, color: "#22C55E" },
+  { id: "inter", label: "Intermédiaire", stars: 2, color: "#F5C842" },
+  { id: "expert", label: "Expert", stars: 3, color: "#F87171" },
 ];
 
 const MOCK_BADGES = [
-  { id: "b1", skill: "React.js", domain: "web",    level: "expert", issuer: "BF Dev Academy", date: "2024-11-03", hash: "0x4a3f…c91e", verified: true },
-  { id: "b2", skill: "Flutter",  domain: "mobile", level: "inter",  issuer: "DigitalBF Hub",  date: "2024-09-17", hash: "0x7b1d…e54a", verified: true },
-  { id: "b3", skill: "Python",   domain: "data",   level: "debut",  issuer: "OpenData BF",   date: "2024-07-22", hash: "0xc8f2…3b70", verified: true },
-  { id: "b4", skill: "Figma",    domain: "design", level: "inter",  issuer: "CreativeLab BF", date: "2025-01-10", hash: "0x9e5c…a12f", verified: true },
+  { id: "b1", skill: "React.js", domain: "web", level: "expert", issuer: "BF Dev Academy", date: "2024-11-03", hash: "0x4a3f…c91e", verified: true },
+  { id: "b2", skill: "Flutter", domain: "mobile", level: "inter", issuer: "DigitalBF Hub", date: "2024-09-17", hash: "0x7b1d…e54a", verified: true },
+  { id: "b3", skill: "Python", domain: "data", level: "debut", issuer: "OpenData BF", date: "2024-07-22", hash: "0xc8f2…3b70", verified: true },
+  { id: "b4", skill: "Figma", domain: "design", level: "inter", issuer: "CreativeLab BF", date: "2025-01-10", hash: "0x9e5c…a12f", verified: true },
 ];
 
 const MOCK_APPRENANTS = [
-  { id: "ap1", name: "Moussa Kaboré",    wallet: "0xAb2F…1C4d", badges: 4, score: 87 },
-  { id: "ap2", name: "Aminata Traoré",   wallet: "0xD8e1…7B3a", badges: 2, score: 64 },
+  { id: "ap1", name: "Moussa Kaboré", wallet: "0xAb2F…1C4d", badges: 4, score: 87 },
+  { id: "ap2", name: "Aminata Traoré", wallet: "0xD8e1…7B3a", badges: 2, score: 64 },
   { id: "ap3", name: "Issouf Ouédraogo", wallet: "0x3Fc9…E80b", badges: 6, score: 95 },
 ];
+
+// ─── HOOKS ─────────────────────────────────────────────────────────
+function useLocalStorage(key, initialValue) {
+  const [storedValue, setStoredValue] = useState(() => {
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      return initialValue;
+    }
+  });
+  const setValue = value => {
+    try {
+      const valueToStore = value instanceof Function ? value(storedValue) : value;
+      setStoredValue(valueToStore);
+      window.localStorage.setItem(key, JSON.stringify(valueToStore));
+    } catch (error) { }
+  };
+  return [storedValue, setValue];
+}
 
 // ─── UTILS ─────────────────────────────────────────────────────────
 function getLevelData(id) { return LEVELS.find(l => l.id === id) || LEVELS[0]; }
@@ -50,7 +70,7 @@ function getDomainData(id) { return DOMAINS.find(d => d.id === id) || DOMAINS[0]
 function Stars({ count }) {
   return (
     <span style={{ letterSpacing: 1 }}>
-      {[1,2,3].map(i => (
+      {[1, 2, 3].map(i => (
         <span key={i} style={{ opacity: i <= count ? 1 : 0.2, fontSize: 11 }}>★</span>
       ))}
     </span>
@@ -71,8 +91,8 @@ function Badge({ badge, compact = false }) {
       transition: "transform 0.2s, box-shadow 0.2s",
       cursor: "default",
     }}
-    onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = `0 8px 30px ${dom.color}22`; }}
-    onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = ""; }}
+      onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = `0 8px 30px ${dom.color}22`; }}
+      onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = ""; }}
     >
       {/* Hexagon glow */}
       <div style={{
@@ -80,7 +100,7 @@ function Badge({ badge, compact = false }) {
         width: 70, height: 70,
         background: `radial-gradient(circle, ${dom.color}18 0%, transparent 70%)`,
         borderRadius: "50%",
-      }}/>
+      }} />
       <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
         <div style={{
           width: compact ? 38 : 46, height: compact ? 38 : 46,
@@ -110,7 +130,7 @@ function Badge({ badge, compact = false }) {
                 marginLeft: "auto", fontSize: 9, fontWeight: 700, letterSpacing: 0.5,
                 color: C.green, display: "flex", alignItems: "center", gap: 4,
               }}>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: C.green, display: "inline-block" }}/>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: C.green, display: "inline-block" }} />
                 VÉRIFIÉ ON-CHAIN
               </span>
             </div>
@@ -165,16 +185,16 @@ function FormateurView() {
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <FormField label="Compétence validée" placeholder="ex: React.js, Flutter…"
-              value={form.skill} onChange={v => setForm({...form, skill: v})} />
+              value={form.skill} onChange={v => setForm({ ...form, skill: v })} />
             <FormField label="Wallet apprenant" placeholder="0x…"
-              value={form.apprenant} onChange={v => setForm({...form, apprenant: v})} />
+              value={form.apprenant} onChange={v => setForm({ ...form, apprenant: v })} />
           </div>
 
           <div>
             <label style={labelStyle}>Domaine</label>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 6 }}>
               {DOMAINS.map(d => (
-                <button key={d.id} onClick={() => setForm({...form, domain: d.id})} style={{
+                <button key={d.id} onClick={() => setForm({ ...form, domain: d.id })} style={{
                   padding: "7px 14px", borderRadius: 8, border: `1.5px solid ${form.domain === d.id ? d.color : C.border}`,
                   background: form.domain === d.id ? `${d.color}15` : "transparent",
                   color: form.domain === d.id ? d.color : C.muted,
@@ -191,7 +211,7 @@ function FormateurView() {
             <label style={labelStyle}>Niveau certifié</label>
             <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
               {LEVELS.map(l => (
-                <button key={l.id} onClick={() => setForm({...form, level: l.id})} style={{
+                <button key={l.id} onClick={() => setForm({ ...form, level: l.id })} style={{
                   flex: 1, padding: "10px 6px", borderRadius: 10,
                   border: `1.5px solid ${form.level === l.id ? l.color : C.border}`,
                   background: form.level === l.id ? `${l.color}15` : "transparent",
@@ -207,7 +227,7 @@ function FormateurView() {
           </div>
 
           <FormField label="Note d'évaluation (optionnel)" placeholder="Points forts observés…"
-            value={form.note} onChange={v => setForm({...form, note: v})} textarea />
+            value={form.note} onChange={v => setForm({ ...form, note: v })} textarea />
 
           <PrimaryButton
             label="Prévisualiser le badge →"
@@ -256,7 +276,7 @@ function FormateurView() {
             <div>Block: #48,291,447</div>
             <div>Gas: 0.0003 MATIC (~$0.0002)</div>
           </div>
-          <PrimaryButton label="Émettre un autre badge" color={C.cyan} onClick={() => { setStep(0); setForm({ skill:"", domain:"web", level:"debut", apprenant:"", note:"" }); }} />
+          <PrimaryButton label="Émettre un autre badge" color={C.cyan} onClick={() => { setStep(0); setForm({ skill: "", domain: "web", level: "debut", apprenant: "", note: "" }); }} />
         </div>
       )}
     </div>
@@ -264,8 +284,8 @@ function FormateurView() {
 }
 
 // ─── INTERFACE 2 : APPRENANT ───────────────────────────────────────
-function ApprenantView() {
-  const [activeApprenant, setActiveApprenant] = useState(MOCK_APPRENANTS[0]);
+function ApprenantView({ apprenants }) {
+  const [activeApprenant, setActiveApprenant] = useState(apprenants[0]);
   const [showQR, setShowQR] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -285,7 +305,7 @@ function ApprenantView() {
 
       {/* Profile selector */}
       <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
-        {MOCK_APPRENANTS.map(a => (
+        {apprenants.map(a => (
           <button key={a.id} onClick={() => setActiveApprenant(a)} style={{
             padding: "8px 14px", borderRadius: 10,
             border: `1.5px solid ${activeApprenant.id === a.id ? C.gold : C.border}`,
@@ -362,7 +382,7 @@ function ApprenantView() {
           <div style={{ fontSize: 11, color: C.muted, marginBottom: 12, letterSpacing: 1, textTransform: "uppercase" }}>QR Code de vérification publique</div>
           <QRMock wallet={activeApprenant.wallet} />
           <div style={{ fontSize: 11, color: C.muted, marginTop: 12 }}>
-            skillbadge.bf/verify/{activeApprenant.wallet.replace("…","0000")}
+            skillbadge.bf/verify/{activeApprenant.wallet.replace("…", "0000")}
           </div>
         </div>
       )}
@@ -371,7 +391,7 @@ function ApprenantView() {
 }
 
 // ─── INTERFACE 3 : RECRUTEUR ───────────────────────────────────────
-function RecruteurView() {
+function RecruteurView({ apprenants }) {
   const [query, setQuery] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -381,10 +401,10 @@ function RecruteurView() {
     setLoading(true);
     setSearched(true);
     setTimeout(() => {
-      const found = MOCK_APPRENANTS.find(a =>
+      const found = apprenants.find(a =>
         a.name.toLowerCase().includes(query.toLowerCase()) ||
         a.wallet.toLowerCase().includes(query.toLowerCase())
-      ) || MOCK_APPRENANTS[2];
+      ) || apprenants[0];
       setResult(found);
       setLoading(false);
     }, 1500);
@@ -429,8 +449,8 @@ function RecruteurView() {
             {loading ? "…" : "Vérifier →"}
           </button>
         </div>
-        <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
-          {MOCK_APPRENANTS.map(a => (
+        <div style={{ marginTop: 10, display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {apprenants.slice(0, 3).map(a => (
             <button key={a.id} onClick={() => setQuery(a.name)} style={{
               padding: "4px 10px", borderRadius: 6,
               border: `1px solid ${C.border}`, background: "transparent",
@@ -508,7 +528,7 @@ function RecruteurView() {
                       width: `${(maxLevel / 3) * 100}%`,
                       background: maxLevel > 0 ? `linear-gradient(90deg, ${d.color}88, ${d.color})` : "transparent",
                       transition: "width 1s ease",
-                    }}/>
+                    }} />
                   </div>
                   <span style={{ fontSize: 11, color: maxLevel > 0 ? d.color : C.muted, width: 80, textAlign: "right" }}>
                     {maxLevel > 0 ? getLevelData(domBadges[0].level).label : "—"}
@@ -534,7 +554,7 @@ function RecruteurView() {
 }
 
 // ─── INTERFACE 0 : LOGIN ───────────────────────────────────────────
-function LoginView({ onLogin }) {
+function LoginView({ onLogin, onRegister }) {
   return (
     <div style={{ textAlign: "center", padding: "20px 10px" }}>
       <SectionHeader
@@ -544,7 +564,7 @@ function LoginView({ onLogin }) {
         color={C.gold}
       />
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16, marginTop: 32 }}>
-        
+
         {/* Formateur */}
         <button onClick={() => onLogin("formateur")} style={{
           background: `linear-gradient(135deg, ${C.card} 0%, #0E1525 100%)`,
@@ -584,6 +604,15 @@ function LoginView({ onLogin }) {
           <div style={{ fontSize: 11, color: C.muted }}>Vérifiez les certifications d'un candidat.</div>
         </button>
       </div>
+      <div style={{ marginTop: 24, textAlign: "center" }}>
+        <button onClick={onRegister} style={{
+          padding: "8px 16px", borderRadius: 8, background: "transparent",
+          border: `1px solid ${C.green}44`, color: C.green, fontSize: 12,
+          fontWeight: 600, cursor: "pointer", transition: "all 0.2s"
+        }} onMouseEnter={e => e.currentTarget.style.background = `${C.green}10`} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+          + Créer un profil de démonstration
+        </button>
+      </div>
     </div>
   );
 }
@@ -613,13 +642,13 @@ function FormField({ label, placeholder, value, onChange, textarea }) {
           width: "100%", marginTop: 6, background: C.card, border: `1px solid ${C.border}`,
           borderRadius: 10, padding: "10px 14px", color: C.white, fontSize: 13, outline: "none",
           resize: "none", fontFamily: "inherit", boxSizing: "border-box",
-        }}/>
+        }} />
       ) : (
         <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} style={{
           width: "100%", marginTop: 6, background: C.card, border: `1px solid ${C.border}`,
           borderRadius: 10, padding: "10px 14px", color: C.white, fontSize: 13, outline: "none",
           boxSizing: "border-box",
-        }}/>
+        }} />
       )}
     </div>
   );
@@ -692,10 +721,81 @@ function QRMock({ wallet }) {
   );
 }
 
+// ─── INTERFACE 0.5 : REGISTRATION ──────────────────────────────────
+function RegisterView({ onCancel, onSave }) {
+  const [form, setForm] = useState({ name: "", wallet: "" });
+
+  function handleGenerateWallet() {
+    const chars = "0123456789abcdefABCDEF";
+    let addr = "0x";
+    for (let i = 0; i < 4; i++) addr += chars[Math.floor(Math.random() * chars.length)];
+    addr += "…";
+    for (let i = 0; i < 4; i++) addr += chars[Math.floor(Math.random() * chars.length)];
+    setForm({ ...form, wallet: addr });
+  }
+
+  function handleSubmit() {
+    if (!form.name || !form.wallet) return;
+    const newApprenant = {
+      id: "ap_" + Date.now(),
+      name: form.name,
+      wallet: form.wallet,
+      badges: 0,
+      score: 0
+    };
+    onSave(newApprenant);
+  }
+
+  return (
+    <div style={{ maxWidth: 400, margin: "0 auto", padding: "20px 10px" }}>
+      <SectionHeader icon="👤" title="Nouveau Profil" subtitle="Enregistrez un apprenant pour la démo" color={C.green} />
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <FormField label="Nom complet" placeholder="Ex: Thomas Sankara" value={form.name} onChange={v => setForm({ ...form, name: v })} />
+        <div>
+          <FormField label="Adresse Wallet" placeholder="Ex: 0x1234…ABCD" value={form.wallet} onChange={v => setForm({ ...form, wallet: v })} />
+          <button onClick={handleGenerateWallet} style={{
+            marginTop: 8, fontSize: 11, color: C.cyan, background: "transparent", border: "none", cursor: "pointer", textDecoration: "underline"
+          }}>Générer un wallet aléatoire</button>
+        </div>
+        <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
+          <SecondaryButton label="Annuler" onClick={onCancel} />
+          <PrimaryButton label="Enregistrer" color={C.green} onClick={handleSubmit} disabled={!form.name || !form.wallet} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function InstallBanner({ onDismiss }) {
+  return (
+    <div style={{
+      position: "fixed", bottom: 20, left: "50%", transform: "translateX(-50%)",
+      background: C.deep, border: `1px solid ${C.gold}55`, borderRadius: 16,
+      padding: "16px 20px", display: "flex", alignItems: "center", gap: 16,
+      boxShadow: "0 10px 40px rgba(0,0,0,0.5)", zIndex: 100,
+      width: "calc(100% - 40px)", maxWidth: 400,
+      animation: "fadeIn 0.5s ease"
+    }}>
+      <div style={{ fontSize: 24 }}>📱</div>
+      <div style={{ flex: 1 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: C.white }}>Installer SkillBadge</div>
+        <div style={{ fontSize: 11, color: C.muted }}>Ajoutez l'application sur votre écran d'accueil.</div>
+      </div>
+      <div style={{ display: "flex", gap: 8 }}>
+        <button onClick={onDismiss} style={{ padding: "8px 12px", borderRadius: 8, border: "none", background: "transparent", color: C.muted, fontSize: 12, cursor: "pointer" }}>Plus tard</button>
+        <button onClick={onDismiss} style={{ padding: "8px 12px", borderRadius: 8, border: "none", background: C.gold, color: C.night, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Installer</button>
+      </div>
+    </div>
+  );
+}
+
 // ─── ROOT APP ──────────────────────────────────────────────────────
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null);
+  const [showRegister, setShowRegister] = useState(false);
+  const [showPWA, setShowPWA] = useState(true);
+  const [apprenants, setApprenants] = useLocalStorage("skillbadge_apprenants", MOCK_APPRENANTS);
 
   function handleLogin(role) {
     setUserRole(role);
@@ -705,6 +805,11 @@ export default function App() {
   function handleLogout() {
     setIsAuthenticated(false);
     setUserRole(null);
+  }
+
+  function handleSaveRegister(newApprenant) {
+    setApprenants(prev => [...prev, newApprenant]);
+    setShowRegister(false);
   }
 
   return (
@@ -717,10 +822,12 @@ export default function App() {
         input:focus, textarea:focus { border-color: ${C.gold}55 !important; }
         @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 ${C.green}44; } 50% { box-shadow: 0 0 0 10px transparent; } }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: ${C.border}; border-radius: 4px; }
       `}</style>
+
+      {showPWA && <InstallBanner onDismiss={() => setShowPWA(false)} />}
 
       <div style={{
         minHeight: "100vh",
@@ -733,40 +840,41 @@ export default function App() {
           position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0,
           backgroundImage: `radial-gradient(circle at 20% 20%, ${C.gold}06 0%, transparent 50%),
                             radial-gradient(circle at 80% 80%, ${C.cyan}05 0%, transparent 50%)`,
-        }}/>
+        }} />
 
         <div style={{ position: "relative", zIndex: 1, maxWidth: 540, margin: "0 auto", padding: "28px 16px 48px" }}>
           {/* Header */}
-          <div style={{ textAlign: "center", marginBottom: 32, position: "relative" }}>
-            {isAuthenticated && (
-              <button onClick={handleLogout} style={{
-                position: "absolute", right: 0, top: 0,
-                padding: "6px 12px", borderRadius: 8,
-                border: `1px solid ${C.red}44`, background: `${C.red}10`,
-                color: C.red, fontSize: 12, fontWeight: 600, cursor: "pointer",
-                transition: "all 0.2s"
-              }}>Déconnexion</button>
-            )}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 8 }}>
-              <img src="/Logo_SKILLBAGE.png" alt="SkillBadge Logo" style={{ height: 48, objectFit: "contain" }} />
-              <h1 style={{
-                fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 26,
-                background: `linear-gradient(135deg, ${C.white}, ${C.gold})`,
-                WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}>SkillBadge</h1>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 32 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <img src="/Logo_SKILLBAGE.png" alt="SkillBadge Logo" style={{ height: 60, objectFit: "contain" }} />
+              <div>
+                <h1 style={{
+                  fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 24,
+                  background: `linear-gradient(135deg, ${C.white}, ${C.gold})`,
+                  WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+                  backgroundClip: "text", margin: 0, lineHeight: 1.1
+                }}>SkillBadge</h1>
+                <div style={{ fontSize: 10, color: C.muted, letterSpacing: 1, marginTop: 2 }}>BURKINA FASO · 2026</div>
+              </div>
             </div>
-            <div style={{ fontSize: 12, color: C.muted, letterSpacing: 1 }}>
-                 BURKINA FASO · 2026
-            </div>
-            <div style={{
-              display: "inline-flex", alignItems: "center", gap: 6, marginTop: 10,
-              background: `${C.green}10`, border: `1px solid ${C.green}33`,
-              borderRadius: 20, padding: "4px 12px",
-              fontSize: 11, color: C.green, fontWeight: 600,
-            }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: C.green, display: "inline-block" }}/>
-              Polygon Mainnet · Prototype
+
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
+              {isAuthenticated && (
+                <button onClick={handleLogout} style={{
+                  padding: "6px 12px", borderRadius: 8,
+                  border: `1px solid ${C.red}44`, background: `${C.red}10`,
+                  color: C.red, fontSize: 11, fontWeight: 600, cursor: "pointer",
+                }}>Déconnexion</button>
+              )}
+              <div style={{
+                display: "inline-flex", alignItems: "center", gap: 6,
+                background: `${C.green}10`, border: `1px solid ${C.green}33`,
+                borderRadius: 20, padding: "3px 10px",
+                fontSize: 9, color: C.green, fontWeight: 600,
+              }}>
+                <span style={{ width: 5, height: 5, borderRadius: "50%", background: C.green, display: "inline-block" }} />
+                Polygon Mainnet
+              </div>
             </div>
           </div>
 
@@ -778,12 +886,16 @@ export default function App() {
             minHeight: 400,
           }}>
             {!isAuthenticated ? (
-              <LoginView onLogin={handleLogin} />
+              showRegister ? (
+                <RegisterView onCancel={() => setShowRegister(false)} onSave={handleSaveRegister} />
+              ) : (
+                <LoginView onLogin={handleLogin} onRegister={() => setShowRegister(true)} />
+              )
             ) : (
               <>
                 {userRole === "formateur" && <FormateurView />}
-                {userRole === "apprenant" && <ApprenantView />}
-                {userRole === "recruteur" && <RecruteurView />}
+                {userRole === "apprenant" && <ApprenantView apprenants={apprenants} />}
+                {userRole === "recruteur" && <RecruteurView apprenants={apprenants} />}
               </>
             )}
           </div>
