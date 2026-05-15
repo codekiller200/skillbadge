@@ -121,45 +121,7 @@ function Badge({ badge, compact = false }) {
   );
 }
 
-// ─── NAV ───────────────────────────────────────────────────────────
-function Nav({ active, setActive }) {
-  const tabs = [
-    { id: "formateur", icon: "✦", label: "Formateur" },
-    { id: "apprenant", icon: "⬡", label: "Apprenant" },
-    { id: "recruteur", icon: "◈", label: "Recruteur" },
-  ];
-  return (
-    <nav style={{
-      display: "flex", gap: 0,
-      background: C.deep,
-      border: `1px solid ${C.border}`,
-      borderRadius: 14,
-      padding: 4,
-      marginBottom: 28,
-    }}>
-      {tabs.map(t => (
-        <button key={t.id} onClick={() => setActive(t.id)} style={{
-          flex: 1,
-          padding: "11px 8px",
-          borderRadius: 11,
-          border: "none",
-          background: active === t.id ? `linear-gradient(135deg, ${C.gold}18, ${C.amber}10)` : "transparent",
-          color: active === t.id ? C.gold : C.muted,
-          fontFamily: "'Syne', sans-serif",
-          fontWeight: active === t.id ? 700 : 500,
-          fontSize: 13,
-          cursor: "pointer",
-          transition: "all 0.2s",
-          outline: active === t.id ? `1.5px solid ${C.gold}44` : "none",
-          display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-        }}>
-          <span style={{ fontSize: 14 }}>{t.icon}</span>
-          <span>{t.label}</span>
-        </button>
-      ))}
-    </nav>
-  );
-}
+
 
 // ─── INTERFACE 1 : FORMATEUR ───────────────────────────────────────
 function FormateurView() {
@@ -571,6 +533,61 @@ function RecruteurView() {
   );
 }
 
+// ─── INTERFACE 0 : LOGIN ───────────────────────────────────────────
+function LoginView({ onLogin }) {
+  return (
+    <div style={{ textAlign: "center", padding: "20px 10px" }}>
+      <SectionHeader
+        icon="🔐"
+        title="Portail de Connexion"
+        subtitle="Sélectionnez votre profil pour accéder à votre espace"
+        color={C.gold}
+      />
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16, marginTop: 32 }}>
+        
+        {/* Formateur */}
+        <button onClick={() => onLogin("formateur")} style={{
+          background: `linear-gradient(135deg, ${C.card} 0%, #0E1525 100%)`,
+          border: `1.5px solid ${C.cyan}44`,
+          borderRadius: 16, padding: "24px 16px",
+          color: C.white, cursor: "pointer", transition: "all 0.3s",
+          display: "flex", flexDirection: "column", alignItems: "center", gap: 12
+        }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.borderColor = C.cyan; }} onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.borderColor = `${C.cyan}44`; }}>
+          <div style={{ fontSize: 36, color: C.cyan }}>✦</div>
+          <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: 18 }}>Formateur</div>
+          <div style={{ fontSize: 11, color: C.muted }}>Émettez des badges et certifiez des compétences.</div>
+        </button>
+
+        {/* Apprenant */}
+        <button onClick={() => onLogin("apprenant")} style={{
+          background: `linear-gradient(135deg, ${C.card} 0%, #0E1525 100%)`,
+          border: `1.5px solid ${C.gold}44`,
+          borderRadius: 16, padding: "24px 16px",
+          color: C.white, cursor: "pointer", transition: "all 0.3s",
+          display: "flex", flexDirection: "column", alignItems: "center", gap: 12
+        }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.borderColor = C.gold; }} onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.borderColor = `${C.gold}44`; }}>
+          <div style={{ fontSize: 36, color: C.gold }}>⬡</div>
+          <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: 18 }}>Apprenant</div>
+          <div style={{ fontSize: 11, color: C.muted }}>Consultez et partagez votre portfolio blockchain.</div>
+        </button>
+
+        {/* Recruteur */}
+        <button onClick={() => onLogin("recruteur")} style={{
+          background: `linear-gradient(135deg, ${C.card} 0%, #0E1525 100%)`,
+          border: `1.5px solid #A78BFA44`,
+          borderRadius: 16, padding: "24px 16px",
+          color: C.white, cursor: "pointer", transition: "all 0.3s",
+          display: "flex", flexDirection: "column", alignItems: "center", gap: 12
+        }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.borderColor = "#A78BFA"; }} onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.borderColor = "#A78BFA44"; }}>
+          <div style={{ fontSize: 36, color: "#A78BFA" }}>◈</div>
+          <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: 18 }}>Recruteur</div>
+          <div style={{ fontSize: 11, color: C.muted }}>Vérifiez les certifications d'un candidat.</div>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── SHARED COMPONENTS ─────────────────────────────────────────────
 function SectionHeader({ icon, title, subtitle, color }) {
   return (
@@ -677,7 +694,18 @@ function QRMock({ wallet }) {
 
 // ─── ROOT APP ──────────────────────────────────────────────────────
 export default function App() {
-  const [tab, setTab] = useState("formateur");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState(null);
+
+  function handleLogin(role) {
+    setUserRole(role);
+    setIsAuthenticated(true);
+  }
+
+  function handleLogout() {
+    setIsAuthenticated(false);
+    setUserRole(null);
+  }
 
   return (
     <>
@@ -709,15 +737,18 @@ export default function App() {
 
         <div style={{ position: "relative", zIndex: 1, maxWidth: 540, margin: "0 auto", padding: "28px 16px 48px" }}>
           {/* Header */}
-          <div style={{ textAlign: "center", marginBottom: 32 }}>
+          <div style={{ textAlign: "center", marginBottom: 32, position: "relative" }}>
+            {isAuthenticated && (
+              <button onClick={handleLogout} style={{
+                position: "absolute", right: 0, top: 0,
+                padding: "6px 12px", borderRadius: 8,
+                border: `1px solid ${C.red}44`, background: `${C.red}10`,
+                color: C.red, fontSize: 12, fontWeight: 600, cursor: "pointer",
+                transition: "all 0.2s"
+              }}>Déconnexion</button>
+            )}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 8 }}>
-              <div style={{
-                width: 40, height: 40, borderRadius: 12,
-                background: `linear-gradient(135deg, ${C.gold}30, ${C.amber}15)`,
-                border: `2px solid ${C.gold}55`,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 18,
-              }}>⬡</div>
+              <img src="/Logo_SKILLBAGE.png" alt="SkillBadge Logo" style={{ height: 48, objectFit: "contain" }} />
               <h1 style={{
                 fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 26,
                 background: `linear-gradient(135deg, ${C.white}, ${C.gold})`,
@@ -727,7 +758,6 @@ export default function App() {
             </div>
             <div style={{ fontSize: 12, color: C.muted, letterSpacing: 1 }}>
                  BURKINA FASO · 2026
-
             </div>
             <div style={{
               display: "inline-flex", alignItems: "center", gap: 6, marginTop: 10,
@@ -740,8 +770,6 @@ export default function App() {
             </div>
           </div>
 
-          <Nav active={tab} setActive={setTab} />
-
           <div style={{
             background: C.card,
             border: `1px solid ${C.border}`,
@@ -749,9 +777,15 @@ export default function App() {
             padding: 24,
             minHeight: 400,
           }}>
-            {tab === "formateur" && <FormateurView />}
-            {tab === "apprenant" && <ApprenantView />}
-            {tab === "recruteur" && <RecruteurView />}
+            {!isAuthenticated ? (
+              <LoginView onLogin={handleLogin} />
+            ) : (
+              <>
+                {userRole === "formateur" && <FormateurView />}
+                {userRole === "apprenant" && <ApprenantView />}
+                {userRole === "recruteur" && <RecruteurView />}
+              </>
+            )}
           </div>
 
           {/* Footer */}
