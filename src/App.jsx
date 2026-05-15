@@ -736,7 +736,7 @@ export default function App() {
               fontSize: 11, color: C.green, fontWeight: 600,
             }}>
               <span style={{ width: 6, height: 6, borderRadius: "50%", background: C.green, display: "inline-block" }}/>
-              Polygon Mainnet · Phase 1 Prototype
+              Polygon Mainnet · Prototype
             </div>
           </div>
 
