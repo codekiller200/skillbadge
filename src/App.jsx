@@ -790,7 +790,7 @@ export default function App() {
 
           {/* Footer */}
           <div style={{ textAlign: "center", marginTop: 20, fontSize: 10, color: C.muted, letterSpacing: 0.5 }}>
-            ODD 4 · ODD 8 · ODD 9 — Prototype Phase 1 — Darollo Technologies
+            ODD 4 · ODD 8 · ODD 9 — Prototype — Darollo Technologies
           </div>
         </div>
       </div>
